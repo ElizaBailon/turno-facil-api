@@ -1,4 +1,4 @@
-nname: TurnoFacil CI Pipeline
+name: TurnoFacil CI Pipeline
 
 on:
   push:
