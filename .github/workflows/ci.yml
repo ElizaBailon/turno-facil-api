@@ -17,6 +17,7 @@ jobs:
       uses: actions/setup-go@v5
       with:
         go-version: '1.22'
+        cache: false # <-- Obliga a limpiar binarios antiguos de la máquina
 
     - name: Verificar formato y estilo (Lint)
       run: go fmt ./...
