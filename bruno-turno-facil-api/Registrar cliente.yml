@@ -1,0 +1,34 @@
+info:
+  name: Registrar cliente
+  type: http
+  seq: 5
+
+http:
+  method: POST
+  url: http://localhost:8080/api/v1/clientes/1234567890
+  body:
+    type: json
+    data: |-
+      {
+        "cedula": "1234567890",
+        "nombre": "Juan Pérez",
+        "telefono": "0900000000",
+        "email": "juan.perez@gmail.com",
+        "vehiculo": [
+          {
+            "id": 1,
+            "placa": "MAN-1234",
+            "marca": "Chevrolet",
+            "modelo": "Sail"
+          }
+        ]
+      }
+  auth:
+    type: bearer
+    token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3ODIzNTkwMzAsInJvbCI6ImFkbWluIiwidXNlcm5hbWUiOiJhZG1pbmVsaXphQHR1cm5vZmFjaWwuY29tIn0.OmpQQc2HeAgDpoBXhTgR3gDU3yBsy6kUph6SXPQhLno
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
