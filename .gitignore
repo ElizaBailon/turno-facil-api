@@ -1,0 +1,17 @@
+# Binarios compilados
+/dist/
+/bin/
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Base de datos local SQLite
+*.db
+*.db-journal
+
+# Dependencias e IDES
+.vscode/
+.idea/
+vendor/

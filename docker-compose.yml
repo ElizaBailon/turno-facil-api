@@ -1,0 +1,39 @@
+version: '3.8'
+
+services:
+  # Servicio 1: Base de Datos PostgreSQL (Obligatorio)
+  db:
+    image: postgres:15-alpine
+    container_name: turno-facil-db
+    environment:
+      POSTGRES_USER: user_turno_facil
+      POSTGRES_PASSWORD: password_seguro_123
+      POSTGRES_DB: turnofacil_prod
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: always
+
+  # Servicio 2: Tu API en Go
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: turno-facil-container
+    ports:
+      - "8080:8080"
+    environment:
+      # Ahora apuntamos a las credenciales de PostgreSQL en lugar de DB_PATH
+      - DB_HOST=db
+      - DB_PORT=5432
+      - DB_USER=user_turno_facil
+      - DB_PASSWORD=password_seguro_123
+      - DB_NAME=turnofacil_prod
+      - PORT=8080
+    depends_on:
+      - db
+    restart: always
+
+volumes:
+  postgres_data:
