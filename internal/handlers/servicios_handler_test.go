@@ -18,7 +18,6 @@ type FakeServiciosService struct {
 	ProximoID int
 }
 
-// 🌟 AJUSTE: Ahora se llama RegistrarServicio como en tu service.go
 func (f *FakeServiciosService) RegistrarServicio(s models.Servicio) (models.Servicio, error) {
 	s.ID = f.ProximoID
 	f.Servicios[f.ProximoID] = s
@@ -32,7 +31,8 @@ func SimularAuthMiddleware(next http.Handler) http.Handler {
 		if r.Header.Get("Authorization") == "" {
 			w.Header().Set("Content-Type", "application/json")
 			w.WriteHeader(http.StatusUnauthorized)
-			w.Write([]byte(`{"error": "Unauthorized"}`))
+			// 🌟 SINCRONIZADO: Mismo JSON exacto que tu middleware real
+			w.Write([]byte(`{"error": "Se requiere token de autenticación (Header Authorization vacío)"}`))
 			return
 		}
 		next.ServeHTTP(w, r)
@@ -44,11 +44,11 @@ func TestCrearServicioHandler_Error_401Unauthorized(t *testing.T) {
 	r := chi.NewRouter()
 	fakeService := &FakeServiciosService{Servicios: make(map[int]models.Servicio), ProximoID: 1}
 
-	// Protegemos la ruta con el middleware simulado
 	r.With(SimularAuthMiddleware).Post("/api/v1/servicios", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
 		var s models.Servicio
 		json.NewDecoder(r.Body).Decode(&s)
-		res, _ := fakeService.RegistrarServicio(s) // 🌟 Ajustado nombre
+		res, _ := fakeService.RegistrarServicio(s)
 		w.WriteHeader(http.StatusCreated)
 		json.NewEncoder(w).Encode(res)
 	})
@@ -59,7 +59,13 @@ func TestCrearServicioHandler_Error_401Unauthorized(t *testing.T) {
 
 	r.ServeHTTP(w, req)
 
+	// Validaciones
 	assert.Equal(t, http.StatusUnauthorized, w.Code) // Valida el 401
+
+	// 🌟 MEJORA: Valida que el cuerpo de error sea un JSON correcto
+	var respuestaError map[string]string
+	json.NewDecoder(w.Body).Decode(&respuestaError)
+	assert.Equal(t, "Se requiere token de autenticación (Header Authorization vacío)", respuestaError["error"])
 }
 
 // TEST 2: Camino Feliz (201 Created) con Fake guardando exitosamente
@@ -71,7 +77,7 @@ func TestCrearServicioHandler_Exito(t *testing.T) {
 		w.Header().Set("Content-Type", "application/json")
 		var s models.Servicio
 		json.NewDecoder(r.Body).Decode(&s)
-		res, _ := fakeService.RegistrarServicio(s) // 🌟 Ajustado nombre
+		res, _ := fakeService.RegistrarServicio(s)
 		w.WriteHeader(http.StatusCreated)
 		json.NewEncoder(w).Encode(res)
 	})
@@ -82,5 +88,12 @@ func TestCrearServicioHandler_Exito(t *testing.T) {
 
 	r.ServeHTTP(w, req)
 
+	// Validaciones
 	assert.Equal(t, http.StatusCreated, w.Code) // Valida el 201
+
+	// 🌟 MEJORA: Valida que el objeto devuelto se haya guardado con el ID 1 en el Fake
+	var servicioCreado models.Servicio
+	json.NewDecoder(w.Body).Decode(&servicioCreado)
+	assert.Equal(t, 1, servicioCreado.ID)
+	assert.Equal(t, "Cambio de Filtro", servicioCreado.Nombre)
 }

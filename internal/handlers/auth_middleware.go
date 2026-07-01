@@ -18,14 +18,20 @@ func AuthMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		authHeader := r.Header.Get("Authorization")
 		if authHeader == "" {
-			http.Error(w, "Se requiere token de autenticación (Header Authorization vacío)", http.StatusUnauthorized)
+			// 🌟 CORRECCIÓN 1: Enviar JSON real en lugar de http.Error
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusUnauthorized)
+			w.Write([]byte(`{"error": "Se requiere token de autenticación (Header Authorization vacío)"}`))
 			return
 		}
 
 		// El header suele venir como "Bearer <token>"
 		partes := strings.Split(authHeader, " ")
 		if len(partes) != 2 || partes[0] != "Bearer" {
-			http.Error(w, "Formato de token inválido. Debe ser 'Bearer <token>'", http.StatusUnauthorized)
+			// 🌟 CORRECCIÓN 2: Enviar JSON real
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusUnauthorized)
+			w.Write([]byte(`{"error": "Formato de token inválido. Debe ser 'Bearer <token>'"}`))
 			return
 		}
 
@@ -41,7 +47,10 @@ func AuthMiddleware(next http.Handler) http.Handler {
 		})
 
 		if err != nil || !token.Valid {
-			http.Error(w, "Token inválido o expirado", http.StatusUnauthorized)
+			// 🌟 CORRECCIÓN 3: Enviar JSON real
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusUnauthorized)
+			w.Write([]byte(`{"error": "Token inválido o expirado"}`))
 			return
 		}
 
@@ -67,7 +76,10 @@ func RequireRol(rolPermitido string) func(http.Handler) http.Handler {
 
 			// Si no hay rol o no coincide con el requerido, bloqueamos con 403 Forbidden
 			if !ok || rolUsuario != rolPermitido {
-				http.Error(w, "Acceso denegado: no tienes los permisos requeridos para esta acción", http.StatusForbidden)
+				// 🌟 CORRECCIÓN 4: Enviar JSON real para permisos denegados
+				w.Header().Set("Content-Type", "application/json")
+				w.WriteHeader(http.StatusForbidden)
+				w.Write([]byte(`{"error": "Acceso denegado: no tienes los permisos requeridos para esta acción"}`))
 				return
 			}
 
