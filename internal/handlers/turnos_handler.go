@@ -25,6 +25,8 @@ func (h *TurnosHandler) Routes() chi.Router {
 	// 🌟 Cualquier usuario autenticado puede ver la lista de turnos
 	r.Get("/", h.ListarTurnos)
 
+	r.Get("/{id}", h.ObtenerTurnoPorID)
+
 	// 🌟 PROTECCIÓN DE ROL: Solo el rol "admin" puede crear turnos
 	r.With(RequireRol("admin")).Post("/", h.CrearTurno)
 
@@ -140,4 +142,27 @@ func (h *TurnosHandler) ActualizarTurno(w http.ResponseWriter, r *http.Request) 
 	// 4. Responder con el turno completo (rellenado con Preloads)
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(turnoActualizado)
+}
+
+// GET /api/v1/turnos/{id}
+func (h *TurnosHandler) ObtenerTurnoPorID(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+
+	idStr := chi.URLParam(r, "id")
+	var id int
+	if _, err := fmt.Sscanf(idStr, "%d", &id); err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte(`{"error": "ID de turno inválido"}`))
+		return
+	}
+
+	turno, err := h.service.ObtenerPorID(id)
+	if err != nil {
+		w.WriteHeader(http.StatusNotFound) // 404
+		w.Write([]byte(`{"error": "El turno solicitado no existe"}`))
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(turno)
 }
