@@ -35,7 +35,9 @@ func main() {
 	mecanicosServ := services.NewMecanicosService(mecanicosRepo)
 
 	// Otros servicios compartidos/grupales
-	turnosServ := services.NewTurnosService(turnosRepo, serviciosRepo)
+	// Antes: turnosServ := services.NewTurnosService(turnosRepo, serviciosRepo)
+	// Ahora:
+	turnosServ := services.NewTurnosService(turnosRepo, serviciosRepo, mecanicosRepo)
 	authServ := services.NewAuthService(usuariosRepo)
 
 	// 🌟 CORRECCIÓN EXIGIDA: Agregamos la capa de negocio para Servicios del Taller

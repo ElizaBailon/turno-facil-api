@@ -11,6 +11,7 @@ type MecanicosRepository interface {
 	Crear(m *models.Mecanico) error
 	Listar() ([]models.Mecanico, error)
 	ObtenerPorID(id int) (models.Mecanico, error)
+	BuscarPorID(id int) (models.Mecanico, error) // 🌟 Añade esta línea
 	// 🌟 Agregamos la firma del método que solicita el servicio para cumplir las reglas del Hito 3
 	CambiarDisponibilidad(id int, activo bool) error
 }
@@ -35,6 +36,12 @@ func (r *sqliteMecanicosRepo) Listar() ([]models.Mecanico, error) {
 }
 
 func (r *sqliteMecanicosRepo) ObtenerPorID(id int) (models.Mecanico, error) {
+	var mecanico models.Mecanico
+	err := r.db.First(&mecanico, id).Error
+	return mecanico, err
+}
+
+func (r *sqliteMecanicosRepo) BuscarPorID(id int) (models.Mecanico, error) {
 	var mecanico models.Mecanico
 	err := r.db.First(&mecanico, id).Error
 	return mecanico, err

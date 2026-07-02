@@ -17,9 +17,10 @@ func TestRegistrarTurno_Exito(t *testing.T) {
 	// Arrange
 	mockRepo := new(repository.MockTurnosRepository)
 	mockServiciosRepo := new(repository.MockServiciosRepository) // 🌟 NUEVO MOCK
+	mockMecanicosRepo := new(repository.MockMecanicosRepository) // 🌟 NUEVO MOCK
 
 	// 🌟 CORRECCIÓN: Inyectamos ambos mocks al constructor
-	service := services.NewTurnosService(mockRepo, mockServiciosRepo)
+	service := services.NewTurnosService(mockRepo, mockServiciosRepo, mockMecanicosRepo)
 
 	fechaTurno := time.Now().Add(24 * time.Hour)
 
@@ -34,6 +35,9 @@ func TestRegistrarTurno_Exito(t *testing.T) {
 	// 🌟 Simulamos que el servicio mecánico existe y dura 60 minutos
 	servicioSimulado := models.Servicio{ID: 1, Nombre: "Cambio de Aceite", DuracionMins: 60}
 	mockServiciosRepo.On("ObtenerPorID", 1).Return(servicioSimulado, nil)
+
+	mecanicoSimulado := models.Mecanico{ID: 1, Nombre: "Mecánico Prueba"}
+	mockMecanicosRepo.On("BuscarPorID", 1).Return(mecanicoSimulado, nil)
 
 	// Simulamos que el mecánico no tiene turnos previos agendados
 	mockRepo.On("ListarPorMecanico", 1).Return([]models.Turno{}, nil)
@@ -55,7 +59,8 @@ func TestRegistrarTurno_Error_ChoqueHorario(t *testing.T) {
 	// Arrange
 	mockRepo := new(repository.MockTurnosRepository)
 	mockServiciosRepo := new(repository.MockServiciosRepository)
-	service := services.NewTurnosService(mockRepo, mockServiciosRepo)
+	mockMecanicosRepo := new(repository.MockMecanicosRepository)
+	service := services.NewTurnosService(mockRepo, mockServiciosRepo, mockMecanicosRepo)
 
 	baseTime := time.Now().Add(24 * time.Hour)
 
@@ -79,7 +84,12 @@ func TestRegistrarTurno_Error_ChoqueHorario(t *testing.T) {
 	// 🌟 El servicio consultado dura 30 minutos
 	servicioSimulado := models.Servicio{ID: 1, Nombre: "Revisión Express", DuracionMins: 30}
 	mockServiciosRepo.On("ObtenerPorID", 1).Return(servicioSimulado, nil)
+	mockMecanicosRepo.On("BuscarPorID", 1).Return(models.Mecanico{ID: 1, Nombre: "Mecánico Prueba"}, nil)
 	mockRepo.On("ListarPorMecanico", 1).Return(turnosExistentes, nil)
+
+	// 🌟 Agrega esto para que la validación pase
+	mecanicoSimulado := models.Mecanico{ID: 1, Nombre: "Mecánico Prueba"}
+	mockMecanicosRepo.On("BuscarPorID", 1).Return(mecanicoSimulado, nil)
 
 	// Act
 	_, err := service.RegistrarTurno(turnoConflictivo)
@@ -94,7 +104,8 @@ func TestRegistrarTurno_Error_ServicioNoExiste(t *testing.T) {
 	// Arrange
 	mockRepo := new(repository.MockTurnosRepository)
 	mockServiciosRepo := new(repository.MockServiciosRepository)
-	service := services.NewTurnosService(mockRepo, mockServiciosRepo)
+	mockMecanicosRepo := new(repository.MockMecanicosRepository)
+	service := services.NewTurnosService(mockRepo, mockServiciosRepo, mockMecanicosRepo)
 
 	turnoInvalido := models.Turno{
 		VehiculoID: 1,
@@ -114,12 +125,39 @@ func TestRegistrarTurno_Error_ServicioNoExiste(t *testing.T) {
 	assert.Equal(t, "el servicio seleccionado no existe en el catálogo", err.Error())
 }
 
+func TestRegistrarTurno_Error_MecanicoNoExiste(t *testing.T) {
+	// Arrange
+	mockRepo := new(repository.MockTurnosRepository)
+	mockServiciosRepo := new(repository.MockServiciosRepository)
+	mockMecanicosRepo := new(repository.MockMecanicosRepository)
+	service := services.NewTurnosService(mockRepo, mockServiciosRepo, mockMecanicosRepo)
+
+	turnoInvalido := models.Turno{
+		MecanicoID: 999, // Mecánico inexistente
+		ServicioID: 1,
+	}
+
+	// Simulamos que el servicio SÍ existe
+	mockServiciosRepo.On("ObtenerPorID", 1).Return(models.Servicio{ID: 1, DuracionMins: 30}, nil)
+
+	// Simulamos que el mecánico NO existe
+	mockMecanicosRepo.On("BuscarPorID", 999).Return(models.Mecanico{}, errors.New("gorm: record not found"))
+
+	// Act
+	_, err := service.RegistrarTurno(turnoInvalido)
+
+	// Assert
+	assert.Error(t, err)
+	assert.Equal(t, "el mecánico seleccionado no existe en el catálogo", err.Error())
+}
+
 // Test 4: Caso de Error - Fallo general al intentar guardar en la base de datos
 func TestRegistrarTurno_Error_FalloBaseDatos(t *testing.T) {
 	// Arrange
 	mockRepo := new(repository.MockTurnosRepository)
 	mockServiciosRepo := new(repository.MockServiciosRepository)
-	service := services.NewTurnosService(mockRepo, mockServiciosRepo)
+	mockMecanicosRepo := new(repository.MockMecanicosRepository)
+	service := services.NewTurnosService(mockRepo, mockServiciosRepo, mockMecanicosRepo)
 
 	turnoNormal := models.Turno{
 		VehiculoID: 1,
@@ -130,6 +168,8 @@ func TestRegistrarTurno_Error_FalloBaseDatos(t *testing.T) {
 
 	servicioSimulado := models.Servicio{ID: 1, Nombre: "Alineación", DuracionMins: 45}
 	mockServiciosRepo.On("ObtenerPorID", 1).Return(servicioSimulado, nil)
+	mecanicoSimulado := models.Mecanico{ID: 1, Nombre: "Mecánico Prueba"}
+	mockMecanicosRepo.On("BuscarPorID", 1).Return(mecanicoSimulado, nil)
 	mockRepo.On("ListarPorMecanico", 1).Return([]models.Turno{}, nil)
 	mockRepo.On("Crear", mock.Anything).Return(errors.New("error interno de base de datos"))
 
@@ -145,7 +185,8 @@ func TestActualizarTurno_Exito(t *testing.T) {
 	// Arrange
 	mockRepo := new(repository.MockTurnosRepository)
 	mockServiciosRepo := new(repository.MockServiciosRepository)
-	service := services.NewTurnosService(mockRepo, mockServiciosRepo)
+	mockMecanicosRepo := new(repository.MockMecanicosRepository)
+	service := services.NewTurnosService(mockRepo, mockServiciosRepo, mockMecanicosRepo)
 
 	idTurno := 1
 	turnoExistente := models.Turno{ID: idTurno, MecanicoID: 1, DuracionEst: 60}
@@ -153,6 +194,7 @@ func TestActualizarTurno_Exito(t *testing.T) {
 
 	mockRepo.On("BuscarPorID", idTurno).Return(turnoExistente, nil)
 	mockServiciosRepo.On("ObtenerPorID", 2).Return(models.Servicio{ID: 2, DuracionMins: 30}, nil)
+	mockMecanicosRepo.On("BuscarPorID", 1).Return(models.Mecanico{ID: 1, Nombre: "Mecánico Prueba"}, nil)
 	mockRepo.On("ListarPorMecanico", 1).Return([]models.Turno{}, nil)
 	mockRepo.On("Actualizar", mock.Anything).Return(nil)
 	mockRepo.On("BuscarPorID", idTurno).Return(turnoExistente, nil) // Segunda llamada tras el update
