@@ -25,6 +25,11 @@ func (m *MockMecanicosRepository) ObtenerPorID(id int) (models.Mecanico, error) 
 	return args.Get(0).(models.Mecanico), args.Error(1)
 }
 
+func (m *MockMecanicosRepository) BuscarPorID(id int) (models.Mecanico, error) {
+	args := m.Called(id)
+	return args.Get(0).(models.Mecanico), args.Error(1)
+}
+
 // 🌟 AGREGADO: Ahora el mock sí sabe cómo simular la actualización en SQLite
 func (m *MockMecanicosRepository) CambiarDisponibilidad(id int, activo bool) error {
 	args := m.Called(id, activo)

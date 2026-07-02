@@ -18,13 +18,15 @@ type TurnosServiceI interface {
 
 type TurnosService struct {
 	repo         repository.TurnosRepository
-	servicioRepo repository.ServiciosRepository // 🌟 Inyectamos el repositorio de servicios
+	servicioRepo repository.ServiciosRepository
+	mecanicoRepo repository.MecanicosRepository // 🌟 Nuevo
 }
 
-func NewTurnosService(repo repository.TurnosRepository, servicioRepo repository.ServiciosRepository) *TurnosService {
+func NewTurnosService(repo repository.TurnosRepository, servRepo repository.ServiciosRepository, mecRepo repository.MecanicosRepository) *TurnosService {
 	return &TurnosService{
 		repo:         repo,
-		servicioRepo: servicioRepo,
+		servicioRepo: servRepo,
+		mecanicoRepo: mecRepo,
 	}
 }
 
@@ -33,6 +35,12 @@ func (s *TurnosService) RegistrarTurno(nuevo models.Turno) (models.Turno, error)
 	servicioReal, err := s.servicioRepo.ObtenerPorID(nuevo.ServicioID)
 	if err != nil {
 		return models.Turno{}, errors.New("el servicio seleccionado no existe en el catálogo")
+	}
+
+	// Antes de procesar el turno:
+	_, err = s.mecanicoRepo.BuscarPorID(nuevo.MecanicoID)
+	if err != nil {
+		return models.Turno{}, errors.New("el mecánico seleccionado no existe en el catálogo")
 	}
 
 	// Asignamos la verdadera duración configurada en el modelo de servicios
@@ -95,6 +103,12 @@ func (s *TurnosService) Actualizar(id int, turnoActualizado models.Turno) (model
 	// Recalcular duración
 	servicioReal, _ := s.servicioRepo.ObtenerPorID(turno.ServicioID)
 	turno.DuracionEst = servicioReal.DuracionMins
+
+	// Antes de llamar a esHorarioDisponible:
+	_, err = s.mecanicoRepo.BuscarPorID(turnoActualizado.MecanicoID)
+	if err != nil {
+		return models.Turno{}, errors.New("el mecánico seleccionado no existe en el catálogo")
+	}
 
 	// 3. 🌟 VALIDACIÓN REUTILIZADA:
 	// Pasamos el ID del turno actual (turno.ID) para que la función lo IGNORE
