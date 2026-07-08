@@ -1,0 +1,237 @@
+{
+  "info": {
+    "name": "turno-facil-api",
+    "description": null,
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Registrar admin",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "auth": {
+          "type": "noauth"
+        },
+        "description": "",
+        "url": {
+          "raw": "http://localhost:8080/api/v1/auth/register",
+          "protocol": "http",
+          "host": [
+            "localhost:8080"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "auth",
+            "register"
+          ],
+          "query": [],
+          "variable": []
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nombre\": \"Admin Taller\",\n  \"username\": \"admineliza@turnofacil.com\",\n  \"password\": \"eliza123\",\n  \"rol\": \"admin\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "Iniciar sesión",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "auth": {
+          "type": "noauth"
+        },
+        "description": "",
+        "url": {
+          "raw": "http://localhost:8080/api/v1/auth/login",
+          "protocol": "http",
+          "host": [
+            "localhost:8080"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "auth",
+            "login"
+          ],
+          "query": [],
+          "variable": []
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"username\": \"admineliza@turnofacil.com\",\n  \"password\": \"eliza123\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "Registrar mecánico",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "auth": {
+          "type": "bearer",
+          "bearer": {
+            "key": "token",
+            "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3ODIzNTkwMzAsInJvbCI6ImFkbWluIiwidXNlcm5hbWUiOiJhZG1pbmVsaXphQHR1cm5vZmFjaWwuY29tIn0.OmpQQc2HeAgDpoBXhTgR3gDU3yBsy6kUph6SXPQhLno",
+            "type": "string"
+          }
+        },
+        "description": "",
+        "url": {
+          "raw": "http://localhost:8080/api/v1/mecanicos",
+          "protocol": "http",
+          "host": [
+            "localhost:8080"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "mecanicos"
+          ],
+          "query": [],
+          "variable": []
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nombre\": \"Nixon Macías\",\n  \"especialidad\": {\n    \"nombre\": \"Inyección Electrónica\",\n    \"descripcion\": \"Diagnóstico y reparación de sistemas de inyección\"\n  }\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "Registrar cliente",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "auth": {
+          "type": "bearer",
+          "bearer": {
+            "key": "token",
+            "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3ODIzNTkwMzAsInJvbCI6ImFkbWluIiwidXNlcm5hbWUiOiJhZG1pbmVsaXphQHR1cm5vZmFjaWwuY29tIn0.OmpQQc2HeAgDpoBXhTgR3gDU3yBsy6kUph6SXPQhLno",
+            "type": "string"
+          }
+        },
+        "description": "",
+        "url": {
+          "raw": "http://localhost:8080/api/v1/clientes/1234567890",
+          "protocol": "http",
+          "host": [
+            "localhost:8080"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "clientes",
+            "1234567890"
+          ],
+          "query": [],
+          "variable": []
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"cedula\": \"1234567890\",\n  \"nombre\": \"Juan Pérez\",\n  \"telefono\": \"0900000000\",\n  \"email\": \"juan.perez@gmail.com\",\n  \"vehiculo\": [\n    {\n      \"id\": 1,\n      \"placa\": \"MAN-1234\",\n      \"marca\": \"Chevrolet\",\n      \"modelo\": \"Sail\"\n    }\n  ]\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "Registrar servicio",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "auth": {
+          "type": "bearer",
+          "bearer": {
+            "key": "token",
+            "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3ODIzNTkwMzAsInJvbCI6ImFkbWluIiwidXNlcm5hbWUiOiJhZG1pbmVsaXphQHR1cm5vZmFjaWwuY29tIn0.OmpQQc2HeAgDpoBXhTgR3gDU3yBsy6kUph6SXPQhLno",
+            "type": "string"
+          }
+        },
+        "description": "",
+        "url": {
+          "raw": "http://localhost:8080/api/v1/servicios",
+          "protocol": "http",
+          "host": [
+            "localhost:8080"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "servicios"
+          ],
+          "query": [],
+          "variable": []
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nombre\": \"Alineación y Balanceo\",\n  \"duracion_mins\": 45,\n  \"precio_estimado\": 35.00\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "Actualizar turno",
+      "request": {
+        "method": "PUT",
+        "header": [],
+        "auth": {
+          "type": "bearer",
+          "bearer": {
+            "key": "token",
+            "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3ODIzNTkwMzAsInJvbCI6ImFkbWluIiwidXNlcm5hbWUiOiJhZG1pbmVsaXphQHR1cm5vZmFjaWwuY29tIn0.OmpQQc2HeAgDpoBXhTgR3gDU3yBsy6kUph6SXPQhLno",
+            "type": "string"
+          }
+        },
+        "description": "",
+        "url": {
+          "raw": "http://localhost:8080/api/v1/turnos",
+          "protocol": "http",
+          "host": [
+            "localhost:8080"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "turnos"
+          ],
+          "query": [],
+          "variable": []
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"vehiculo_id\": 1,\n  \"mecanico_id\": 1,\n  \"servicio_id\": 1,\n  \"fecha_hora\": \"2026-06-25T14:00:00Z\",\n  \"notas\": \"Primer turno tras la limpieza del sistema\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    }
+  ],
+  "variable": []
+}
