@@ -1,10 +1,9 @@
 name: TurnoFacil CI Pipeline
 
+# Se dispara en cualquier push o pull_request (necesario para el Checkpoint 3)
 on:
   push:
-    branches: [ main, develop ]
   pull_request:
-    branches: [ main, develop ]
 
 jobs:
   lint-and-test:
@@ -21,6 +20,9 @@ jobs:
 
     - name: Verificar formato y estilo (Lint)
       run: go fmt ./...
+
+    - name: Analizar código (go vet)
+      run: go vet ./...
 
     - name: Ejecutar Tests Unitarios con Mocks
       run: go test -v ./internal/services/...
