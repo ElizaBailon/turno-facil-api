@@ -1,6 +1,6 @@
 name: TurnoFacil CI Pipeline
 
-# Se dispara en cualquier push o pull_request (necesario para el Checkpoint 3)
+# Se dispara en cualquier push o pull_request
 on:
   push:
   pull_request:
@@ -9,23 +9,36 @@ jobs:
   lint-and-test:
     runs-on: ubuntu-latest
     steps:
-    - name: Checkout del código
-      uses: actions/checkout@v4
+      - name: Checkout del código
+        uses: actions/checkout@v4
 
-    - name: Configurar entorno de Go
-      uses: actions/setup-go@v5
-      with:
-        go-version: '1.22'
-        cache: false
+      - name: Configurar entorno de Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.26' # Sincronizado con tu go.mod
+          cache: false
 
-    - name: Verificar formato y estilo (Lint)
-      run: go fmt ./...
+      - name: Verificar formato y estilo (Lint)
+        run: go fmt ./...
 
-    - name: Analizar código (go vet)
-      run: go vet ./...
+      - name: Analizar código (go vet)
+        run: go vet ./...
 
-    - name: Ejecutar Tests Unitarios con Mocks
-      run: go test -v ./internal/services/...
+      - name: Ejecutar Tests Unitarios con Mocks
+        run: go test -v ./internal/services/...
 
-    - name: Verificar Compilación (Build)
-      run: go build -v ./cmd/api/main.go
+      - name: Verificar Compilación (Build)
+        run: go build -v ./cmd/api/main.go
+
+  docker-build-check:
+    needs: lint-and-test # Solo corre si los tests pasaron primero
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout del código
+        uses: actions/checkout@v4
+
+      - name: Validar construcción de imagen Docker
+        run: docker build -t turno-facil-api:ci .
+
+      - name: Verificar configuración de Docker Compose
+        run: docker compose -f docker-compose.yml config
