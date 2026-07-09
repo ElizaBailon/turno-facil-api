@@ -15,7 +15,7 @@ jobs:
       - name: Configurar entorno de Go
         uses: actions/setup-go@v5
         with:
-          go-version: '1.22'
+          go-version: '1.26' # Sincronizado con tu go.mod
           cache: false
 
       - name: Verificar formato y estilo (Lint)
